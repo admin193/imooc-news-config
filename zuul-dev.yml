@@ -1,0 +1,63 @@
+############################################################
+#
+# 网关
+# web访问端口号  约定：7000
+#
+############################################################
+server:
+  port: 7070
+  tomcat:
+    uri-encoding: UTF-8
+    max-swallow-size: -1  # tomcat默认大小2M，超过2M的文件不会被捕获，需要调整此处大小为100MB或者-1即可
+
+############################################################
+#
+# 配置项目信息
+#
+############################################################
+spring:
+  application:
+    name: spring-zuul-server
+  mvc:
+    servlet:
+      load-on-startup: 100
+
+  redis:
+    database: 0
+    host: 192.168.202.136
+    #    host: localhost
+    port: 6380
+    password: 123456
+
+
+
+#路由规则： http://[网关地址]：[端口号]/[prefix]/[微服务实例id]/[请求地址]
+#         http://192.168.1.6:7070/api/service-article/article/queryMyList
+zuul:
+  routes:
+    service-article: /service-article/** #简化
+    #    service-article:                #路由Id
+#      path: /service-article/**     #请求路径前缀
+##      url: http://192.168.1.6:8001  #转发到指定服务所在Ip
+#      service-id: service-article   #转发到指定服务所在Ip 服务实例名字
+    prefix: /api                    #请求前缀
+
+eureka:
+  #自定义eureka信息
+  server:
+    hostname: eureka
+    port: 7000
+  client:
+    register-with-eureka: true
+    #需要获取自己 地参数和开放远程调用方法
+    fetch-registry: true
+    #单实例配置自己的服务地址。高可用配置多个地址
+    service-url:
+      #      defaultZone: http://${eureka.server.hostname}:${eureka.server.port}/eureka/
+      defaultZone: http://eureka-cluster-7001:7001/eureka/,http://eureka-cluster-7002:7002/eureka/,http://eureka-cluster-7003:7003/eureka/
+
+blackIp:
+  continueCounts: ${counts:10}  #ip连续请求次数
+  timeInterval: ${interval:10}  #ip判断时间间隔
+  limitTimes: ${times:15}       #限制的事件 单位秒
+
